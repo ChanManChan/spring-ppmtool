@@ -1,5 +1,6 @@
 package com.u4.ppmtool.services;
 
+import com.u4.ppmtool.domain.Backlog;
 import com.u4.ppmtool.domain.Project;
 import com.u4.ppmtool.exceptions.ProjectIdException;
 import com.u4.ppmtool.repositories.ProjectRepository;
@@ -15,6 +16,14 @@ public class ProjectService {
     public Project saveOrUpdateProject(Project project) {
         try {
             project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+
+            if(project.getId() == null) {
+                Backlog backlog = new Backlog();
+                project.setBacklog(backlog);
+                backlog.setProject(project);
+                backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+            }
+
             return projectRepository.save(project);
         } catch (Exception e) {
             throw new ProjectIdException("Project ID '" + project.getProjectIdentifier().toUpperCase() + "' already exists");

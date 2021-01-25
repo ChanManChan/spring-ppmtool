@@ -37,6 +37,19 @@ public class Project {
     @JsonFormat(pattern = "dd/mm/yyyy - HH:mm:ss aa")
     private Date updated_At;
 
+    // when we load a project object, the backlog object is readily available
+    // cascade = the project is the owning side of the relationship, if project is deleted then everything that is child to the project (backlog and the project task) should also be deleted.
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+    private Backlog backlog;
+
+    public Backlog getBacklog() {
+        return backlog;
+    }
+
+    public void setBacklog(Backlog backlog) {
+        this.backlog = backlog;
+    }
+
     public Project() {
     }
 
