@@ -3,7 +3,6 @@ package com.u4.ppmtool.exceptions;
 public class ProjectIdExceptionResponse {
     private String projectIdentifier;
 
-
     public ProjectIdExceptionResponse(String projectIdentifier) {
         this.projectIdentifier = projectIdentifier;
     }

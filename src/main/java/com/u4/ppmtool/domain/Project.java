@@ -1,6 +1,7 @@
 package com.u4.ppmtool.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -40,6 +41,7 @@ public class Project {
     // when we load a project object, the backlog object is readily available
     // cascade = the project is the owning side of the relationship, if project is deleted then everything that is child to the project (backlog and the project task) should also be deleted.
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+    @JsonIgnore
     private Backlog backlog;
 
     public Backlog getBacklog() {

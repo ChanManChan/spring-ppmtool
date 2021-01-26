@@ -3,6 +3,8 @@ package com.u4.ppmtool.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Backlog {
@@ -22,6 +24,14 @@ public class Backlog {
     private Project project;
 
     // OneToMany project tasks
+    // mappedBy <- name of the attribute on the ProjectTask side
+    // CascadeType.REFRESH <- A ProjectTask can be deleted that is a child to a backlog object which refreshes the backlog (put it in the owning side of the relationship)
+    // orphanRemoval <- when the child entities are no longer referenced from the parent
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "backlog", orphanRemoval = true)
+    private List<ProjectTask> projectTasks = new ArrayList<>();
+
+    public Backlog() {
+    }
 
     public Project getProject() {
         return project;
@@ -31,7 +41,12 @@ public class Backlog {
         this.project = project;
     }
 
-    public Backlog() {
+    public List<ProjectTask> getProjectTasks() {
+        return projectTasks;
+    }
+
+    public void setProjectTasks(List<ProjectTask> projectTasks) {
+        this.projectTasks = projectTasks;
     }
 
     public Long getId() {
