@@ -30,12 +30,16 @@ public class ProjectTaskService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask) {
+    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask, String username) {
         // PTs to be added to a specific project, project != null, BL exists
         Backlog backlog = backlogRepository.findByProjectIdentifier(projectIdentifier);
 
         if(backlog == null) {
             throw new ProjectNotFoundException("Project with ID '" + projectIdentifier + "' not found");
+        }
+
+        if(!backlog.getProject().getProjectLeader().equals(username)) {
+            throw new ProjectNotFoundException("Project not found in your account");
         }
 
         // set the BL to PT
@@ -68,20 +72,29 @@ public class ProjectTaskService {
         return projectTaskRepository.save(projectTask);
     }
 
-    public List<ProjectTask> fetchBacklogTasks(String backlogId) {
+    public List<ProjectTask> fetchBacklogTasks(String backlogId, String username) {
         Project project = projectRepository.findByProjectIdentifier(backlogId);
+
         if(project == null) {
             throw new ProjectNotFoundException("Project with ID '" + backlogId + "' not found");
-        } else {
-            return projectTaskRepository.findByProjectIdentifierOrderByPriority(backlogId);
         }
+
+        if(!project.getProjectLeader().equals(username)) {
+            throw new ProjectNotFoundException("Project not found in your account");
+        }
+
+        return projectTaskRepository.findByProjectIdentifierOrderByPriority(backlogId);
     }
 
-    public ProjectTask findPTByProjectSequence(String backlogId, String sequence) {
+    public ProjectTask findPTByProjectSequence(String backlogId, String sequence, String username) {
         Backlog backlog = backlogRepository.findByProjectIdentifier(backlogId);
 
         if(backlog == null) {
             throw new ProjectNotFoundException("Project with ID '" + backlogId + "' does not exist");
+        }
+
+        if(!backlog.getProject().getProjectLeader().equals(username)) {
+            throw new ProjectNotFoundException("Project not found in your account");
         }
 
         ProjectTask projectTask = projectTaskRepository.findByProjectSequence(sequence);
@@ -97,12 +110,12 @@ public class ProjectTaskService {
         return projectTask;
     }
 
-    public ProjectTask updateByProjectSequence(String backlogId, String sequence, ProjectTask updatedTask) {
+    public ProjectTask updateByProjectSequence(String backlogId, String sequence, ProjectTask updatedTask, String username) {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, Object> fields = mapper.convertValue(updatedTask, new TypeReference<Map<String, Object>>() {});
 
-        ProjectTask projectTask = findPTByProjectSequence(backlogId, sequence);
+        ProjectTask projectTask = findPTByProjectSequence(backlogId, sequence, username);
 
         fields.remove("id");
         fields.remove("projectIdentifier");
@@ -118,8 +131,8 @@ public class ProjectTaskService {
         return projectTaskRepository.save(projectTask);
     }
 
-    public void deletePTByProjectSequence(String backlogId, String sequence) {
-        ProjectTask projectTask = findPTByProjectSequence(backlogId, sequence);
+    public void deletePTByProjectSequence(String backlogId, String sequence, String username) {
+        ProjectTask projectTask = findPTByProjectSequence(backlogId, sequence, username);
 
         //        Backlog backlog = projectTask.getBacklog();
         //        List<ProjectTask> projectTasks = backlog.getProjectTasks();
